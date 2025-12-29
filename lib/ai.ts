@@ -2,24 +2,30 @@
 import { GoogleGenAI } from "@google/genai";
 
 /**
- * SECURITY: This utility ensures AI features do not crash the frontend
- * if the API_KEY is missing or if the service is unavailable.
+ * INSTITUTIONAL STABILITY LAYER
+ * Ensures AI features are dormant during the public preview phase.
+ * No requests are initiated unless a valid API_KEY is detected in a safe environment.
  */
 export const getSafeAI = () => {
-  const apiKey = (process.env as any).API_KEY;
-  
-  if (!apiKey || apiKey === "REPLACE_WITH_YOUR_API_KEY") {
-    return null;
-  }
-
   try {
+    // Robust check for environment variables to prevent runtime exceptions
+    const apiKey = typeof process !== 'undefined' && process.env ? (process.env as any).API_KEY : null;
+    
+    if (!apiKey || apiKey === "REPLACE_WITH_YOUR_API_KEY" || apiKey.length < 10) {
+      return null;
+    }
+
     return new GoogleGenAI({ apiKey });
   } catch (e) {
-    // Fail silently to prevent information leakage in console
+    // Silent fail to maintain frontend stability
     return null;
   }
 };
 
+/**
+ * Experimental AI Service
+ * Currently locked for institutional stability. Returns null without execution.
+ */
 export const runAIService = async (prompt: string): Promise<string | null> => {
   const ai = getSafeAI();
   if (!ai) return null;

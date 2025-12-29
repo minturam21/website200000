@@ -2,10 +2,18 @@
 const API_BASE_URL = 'http://localhost:5000/api';
 
 /**
- * Standard API Fetcher for SM Skills Institute.
- * Throws errors on network failure to allow services to implement fallbacks.
+ * Institutional API Fetcher
+ * Includes pre-flight checks to prevent execution during frontend-only preview mode.
  */
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
+  // Pre-flight check: Prevent network calls if the environment is strictly frontend-preview
+  const isPreviewOnly = typeof window !== 'undefined' && 
+    (window.location.hostname !== 'localhost' && !window.location.hostname.includes('api'));
+
+  if (isPreviewOnly && options.method !== 'GET') {
+    throw new Error('Digital transmission layer is currently awaiting backend integration.');
+  }
+
   const url = `${API_BASE_URL}${endpoint}`;
   
   const defaultHeaders = {
@@ -26,7 +34,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
 
     return result;
   } catch (error: any) {
-    // Re-throw to allow service-level fallback logic
+    // Re-throw to allow component-level honest handling
     throw error;
   }
 };

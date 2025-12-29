@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import PageHeader from '../components/PageHeader.tsx';
-import { MapPin, Phone, Mail, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { MapPin, Phone, Mail, ShieldAlert, Send } from 'lucide-react';
 import { db } from '../lib/db.ts';
 
 const Contact: React.FC = () => {
@@ -25,24 +25,38 @@ const Contact: React.FC = () => {
             <div className="mt-16 p-6 bg-slate-50 border border-slate-200 rounded-xl flex items-start space-x-4">
               <ShieldAlert className="text-slate-400 mt-1 flex-shrink-0" size={20} />
               <p className="text-[11px] text-slate-500 leading-relaxed font-medium uppercase tracking-tight">
-                <strong>Data Governance:</strong> All institutional communications are recorded for quality and academic assurance.
+                <strong>Data Governance:</strong> Digital enquiry transmission is currently transitioning to a secure institutional server. Please use helplines for immediate response.
               </p>
             </div>
           </div>
 
-          <div className="bg-slate-50 p-10 rounded-3xl border border-slate-200 border-dashed flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-6">
-              <AlertTriangle size={32} className="text-amber-600" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-4 uppercase tracking-tight">Portal Update in Progress</h3>
-            <p className="text-slate-500 mb-8 text-sm leading-relaxed max-w-sm">
-              The online enquiry portal is currently being synchronized with our central student database. 
-              <br/><br/>
-              <strong>For immediate admissions support, please utilize our WhatsApp or Phone helpline.</strong>
-            </p>
-            <div className="flex flex-col space-y-4 w-full max-w-xs">
-              <a href={`tel:${settings.phone}`} className="bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg">Call Admissions</a>
-              <div className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em]">Service expected to resume shortly</div>
+          <div className="bg-white p-10 rounded-3xl border border-slate-100 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-slate-100"></div>
+            <h3 className="text-xl font-bold text-slate-900 mb-8 uppercase tracking-tight flex items-center">
+              <span className="w-2 h-2 bg-amber-500 rounded-full mr-3 animate-pulse"></span>
+              Enquiry Portal
+            </h3>
+            
+            <form className="space-y-6 opacity-60 grayscale-[0.5] pointer-events-none">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input label="Full Name" placeholder="Student Name" />
+                <Input label="Phone Number" placeholder="+1..." />
+              </div>
+              <Input label="Email Address" placeholder="email@example.com" />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Message</label>
+                <textarea className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl h-32 resize-none outline-none" placeholder="How can we help?"></textarea>
+              </div>
+            </form>
+
+            <div className="mt-8 pt-8 border-t border-slate-50 flex flex-col items-center">
+              <button disabled className="w-full bg-slate-100 text-slate-400 py-5 rounded-xl font-black uppercase tracking-[0.3em] text-[10px] flex items-center justify-center space-x-3 cursor-not-allowed">
+                <Send size={14} />
+                <span>Portal Syncing...</span>
+              </button>
+              <p className="mt-4 text-[9px] text-slate-300 font-bold uppercase tracking-widest text-center">
+                Transmission layer awaiting backend integration
+              </p>
             </div>
           </div>
         </div>
@@ -51,9 +65,16 @@ const Contact: React.FC = () => {
   );
 };
 
+const Input = ({ label, placeholder }: any) => (
+  <div className="space-y-2">
+    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</label>
+    <input disabled className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl outline-none" placeholder={placeholder} />
+  </div>
+);
+
 const ContactInfo = ({ icon, label, value }: any) => (
   <div className="flex items-start space-x-6">
-    <div className="w-12 h-12 bg-slate-100 rounded flex items-center justify-center text-slate-900 flex-shrink-0">
+    <div className="w-12 h-12 bg-slate-900 rounded flex items-center justify-center text-white flex-shrink-0 shadow-lg">
       {React.cloneElement(icon, { size: 20 })}
     </div>
     <div>

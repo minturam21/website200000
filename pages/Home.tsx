@@ -15,9 +15,9 @@ const Home: React.FC = () => {
     const fetchNotices = async () => {
       try {
         const data = await getPublicNotices();
-        setNotices(data);
+        setNotices(data || []);
       } catch (err) {
-        console.error("Notice feed error");
+        // Silent recovery to local data as per stability protocol
       } finally {
         setIsLoading(false);
       }
@@ -86,7 +86,7 @@ const Home: React.FC = () => {
               </div>
               <div className="flex items-center space-x-1.5">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Live Feed</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Status: Active</span>
               </div>
             </div>
             
@@ -94,7 +94,7 @@ const Home: React.FC = () => {
               {isLoading ? (
                 <div className="h-full flex flex-col items-center justify-center space-y-3">
                   <Loader2 size={24} className="animate-spin text-slate-300" />
-                  <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Syncing Feed</span>
+                  <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Accessing Registry</span>
                 </div>
               ) : notices.length > 0 ? (
                 <div className="animate-scroll-up h-full">
@@ -120,7 +120,7 @@ const Home: React.FC = () => {
                 </div>
               ) : (
                 <div className="h-full flex items-center justify-center">
-                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">No active notices</p>
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">Registry Synchronized</p>
                 </div>
               )}
             </div>

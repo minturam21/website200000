@@ -11,7 +11,7 @@ const getAuthHeaders = () => {
 
 const handleResponse = async (response: Response) => {
   const result = await response.json();
-  if (response.status === 401) {
+  if (response.status === 401 && !window.location.hash.includes('login')) {
     sessionStorage.removeItem('sm_skills_token');
     window.location.href = '#/login';
     throw new Error('Session expired');
@@ -19,6 +19,13 @@ const handleResponse = async (response: Response) => {
   if (!response.ok) throw new Error(result.message || 'Operation failed');
   return result;
 };
+
+// AUTH
+export const adminLogin = (credentials: any) => fetch(`${API_BASE_URL}/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(credentials)
+}).then(handleResponse);
 
 // COURSES
 export const adminGetCourses = () => fetch(`${API_BASE_URL}/courses`, { headers: getAuthHeaders() }).then(handleResponse);
