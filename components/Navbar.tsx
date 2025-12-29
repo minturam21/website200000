@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex justify-between items-center h-24">
           <Link to="/" className="flex items-center space-x-5 group">
-            <svg viewBox="0 0 200 200" className="w-16 h-16 flex-shrink-0 transition-transform duration-500 group-hover:rotate-[360deg]" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 200 200" className="w-16 h-16 flex-shrink-0 transition-transform duration-500" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <path id="navTextPathTop" d="M 25,100 A 75,75 0 0,1 175,100" />
                 <path id="navTextPathBottom" d="M 175,100 A 75,75 0 0,1 25,100" />

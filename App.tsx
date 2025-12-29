@@ -3,19 +3,19 @@ import React from 'react';
 /* Use named imports instead of wildcard to fix type errors */
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import About from './pages/About';
-import Courses from './pages/Courses';
-import Admissions from './pages/Admissions';
-import Placement from './pages/Placement';
-import Gallery from './pages/Gallery';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import ProtectedRoute from './components/ProtectedRoute';
-import { SITE_CONFIG } from './data/siteData';
+import Navbar from './components/Navbar.tsx';
+import Footer from './components/Footer.tsx';
+import Home from './pages/Home.tsx';
+import About from './pages/About.tsx';
+import Courses from './pages/Courses.tsx';
+import Admissions from './pages/Admissions.tsx';
+import Placement from './pages/Placement.tsx';
+import Gallery from './pages/Gallery.tsx';
+import Contact from './pages/Contact.tsx';
+import Login from './pages/Login.tsx';
+import Dashboard from './pages/Dashboard.tsx';
+import ProtectedRoute from './components/ProtectedRoute.tsx';
+import { SITE_CONFIG } from './data/siteData.ts';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();

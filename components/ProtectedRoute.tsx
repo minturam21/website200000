@@ -12,7 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   
   // Security Check: In a real app, this would verify a JWT token with a backend.
   // For this prototype, we check the session storage.
-  const isAuthenticated = sessionStorage.getItem('sm_skills_auth') === 'true';
+  const isAuthenticated = sessionStorage.getItem('sm_skills_auth_user_id') !== null;
 
   if (!isAuthenticated) {
     // Redirect to login but save the attempted location so we can redirect back after login
