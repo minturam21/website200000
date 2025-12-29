@@ -1,26 +1,28 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Briefcase, Bell, ArrowRight } from 'lucide-react';
-import { db, DbNotice } from '../lib/db.ts';
+import { BookOpen, Briefcase, Bell, ArrowRight, Loader2 } from 'lucide-react';
+import { db } from '../lib/db.ts';
 import SEO from '../components/SEO.tsx';
+import { getPublicNotices, NoticeData } from '../services/noticeService';
 
 const Home: React.FC = () => {
-  // Fix: Initialize as an empty array and handle async fetch to prevent treating Promise as an array
-  const [notices, setNotices] = useState<DbNotice[]>([]);
+  const [notices, setNotices] = useState<NoticeData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const settings = db.getSettings();
 
   useEffect(() => {
-    // Fix: Define an async refresh function to await the promise from db.getNotices()
-    const refresh = async () => {
-      const data = await db.getNotices();
-      setNotices(data);
+    const fetchNotices = async () => {
+      try {
+        const data = await getPublicNotices();
+        setNotices(data);
+      } catch (err) {
+        console.error("Notice feed error");
+      } finally {
+        setIsLoading(false);
+      }
     };
-    // Trigger initial fetch
-    refresh();
-    
-    window.addEventListener('db-update', refresh);
-    return () => window.removeEventListener('db-update', refresh);
+    fetchNotices();
   }, []);
 
   return (
@@ -59,7 +61,7 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Real-time Info & Notice Grid */}
+      {/* Info Boxes */}
       <div className="container mx-auto px-6 lg:px-12 relative -mt-16 z-10 mb-24">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <InfoBox 
@@ -75,7 +77,7 @@ const Home: React.FC = () => {
             color="bg-blue-600" 
           />
 
-          {/* Scrolling Notice Terminal - Restored */}
+          {/* Scrolling Notice Terminal */}
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 flex flex-col h-[400px] overflow-hidden">
             <div className="bg-slate-800 p-5 flex items-center justify-between">
               <div className="flex items-center space-x-3 text-white">
@@ -84,31 +86,43 @@ const Home: React.FC = () => {
               </div>
               <div className="flex items-center space-x-1.5">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Live</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Live Feed</span>
               </div>
             </div>
             
             <div className="flex-grow overflow-hidden relative p-2 bg-slate-50">
-              <div className="animate-scroll-up h-full">
-                <div className="space-y-3">
-                  {notices.map((notice, idx) => (
-                    <div key={`${notice.id}-${idx}`} className="p-5 bg-white border border-slate-100 rounded-lg hover:border-green-200 transition-all group shadow-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] text-slate-400 font-bold uppercase">{notice.date}</span>
-                        {notice.tag && <span className="text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded font-bold uppercase tracking-tighter border border-red-200">{notice.tag}</span>}
-                      </div>
-                      <h4 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-green-600 transition-colors">{notice.title}</h4>
-                      <p className="text-xs text-slate-500 leading-normal line-clamp-2">{notice.desc}</p>
-                    </div>
-                  ))}
-                  {/* Duplicate for infinite effect */}
-                  {notices.map((notice, idx) => (
-                    <div key={`${notice.id}-dup-${idx}`} className="p-5 bg-white border border-slate-100 rounded-lg">
-                       <h4 className="font-bold text-slate-900 text-sm">{notice.title}</h4>
-                    </div>
-                  ))}
+              {isLoading ? (
+                <div className="h-full flex flex-col items-center justify-center space-y-3">
+                  <Loader2 size={24} className="animate-spin text-slate-300" />
+                  <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Syncing Feed</span>
                 </div>
-              </div>
+              ) : notices.length > 0 ? (
+                <div className="animate-scroll-up h-full">
+                  <div className="space-y-3">
+                    {notices.map((notice, idx) => (
+                      <div key={notice.id} className="p-5 bg-white border border-slate-100 rounded-lg hover:border-green-200 transition-all group shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-[10px] text-slate-400 font-bold uppercase">
+                            {new Date(notice.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-green-600 transition-colors">{notice.title}</h4>
+                        <p className="text-xs text-slate-500 leading-normal line-clamp-2">{notice.content}</p>
+                      </div>
+                    ))}
+                    {/* Infinite scroll padding */}
+                    {notices.length < 5 && notices.map((notice) => (
+                       <div key={`${notice.id}-dup`} className="p-5 bg-white border border-slate-100 rounded-lg">
+                         <h4 className="font-bold text-slate-900 text-sm opacity-50">{notice.title}</h4>
+                       </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">No active notices</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

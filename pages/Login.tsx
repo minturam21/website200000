@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, Lock, User, ShieldAlert, ShieldCheck, ChevronRight, Info } from 'lucide-react';
-import { db } from '../lib/db.ts';
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -11,36 +10,40 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const settings = db.getSettings();
   const from = (location.state as any)?.from?.pathname || "/dashboard";
 
   useEffect(() => {
-    if (sessionStorage.getItem('sm_skills_auth_user_id')) {
+    if (sessionStorage.getItem('sm_skills_token')) {
       navigate(from, { replace: true });
     }
   }, [navigate, from]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    // Simulate Server Request with institutional latency
-    setTimeout(() => {
-      const user = db.getUsers().find(u => 
-        u.username === credentials.username && 
-        u.passwordHash === credentials.password
-      );
+    try {
+      const response = await fetch('http://localhost:5000/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials)
+      });
 
-      if (user) {
-        sessionStorage.setItem('sm_skills_auth_user_id', user.id);
-        sessionStorage.setItem('sm_skills_session_start', new Date().toISOString());
-        navigate(from, { replace: true });
-      } else {
-        setError('Verification failed. Identity mismatch in mock database.');
-        setIsLoading(false);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Verification failed.');
       }
-    }, 800);
+
+      sessionStorage.setItem('sm_skills_token', result.token);
+      sessionStorage.setItem('sm_skills_username', credentials.username);
+      navigate(from, { replace: true });
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,7 +60,7 @@ const Login: React.FC = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-900 rounded-2xl mb-6 shadow-2xl">
             <ShieldCheck className="text-white" size={40} />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tighter">{settings.siteName}</h1>
+          <h1 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tighter tracking-widest">SM Skills</h1>
           <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.4em]">Administrative Governance</p>
         </div>
         
@@ -66,22 +69,22 @@ const Login: React.FC = () => {
             <h2 className="text-xl font-bold text-slate-800 mb-8 uppercase tracking-tight">Identity Verification</h2>
 
             {error && (
-              <div className="mb-8 p-4 bg-slate-50 border border-slate-200 flex items-center text-slate-600 text-[10px] font-bold uppercase tracking-widest rounded-xl animate-in fade-in slide-in-from-top-2">
-                <ShieldAlert size={16} className="mr-3 text-red-500" />
+              <div className="mb-8 p-4 bg-red-50 border border-red-100 flex items-center text-red-600 text-[10px] font-bold uppercase tracking-widest rounded-xl animate-in fade-in slide-in-from-top-2">
+                <ShieldAlert size={16} className="mr-3" />
                 {error}
               </div>
             )}
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2.5 ml-1">Mock Identity</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2.5 ml-1">Username</label>
                 <div className="relative">
                   <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input 
                     type="text"
                     required
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-slate-400 focus:bg-white transition-all font-bold text-slate-900 placeholder:text-slate-300"
-                    placeholder="Username"
+                    placeholder="Enter Username"
                     value={credentials.username}
                     onChange={(e) => setCredentials({...credentials, username: e.target.value})}
                   />
@@ -89,10 +92,7 @@ const Login: React.FC = () => {
               </div>
               
               <div>
-                <div className="flex justify-between items-center mb-2.5 ml-1">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Mock Token</label>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Sandbox Protocol</span>
-                </div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2.5 ml-1">Password</label>
                 <div className="relative">
                   <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input 
@@ -122,19 +122,11 @@ const Login: React.FC = () => {
               </button>
             </form>
           </div>
-
-          <div className="px-10 py-6 bg-slate-50 border-t border-slate-100 text-center flex items-center justify-center space-x-3">
-             <Info size={14} className="text-slate-400" />
-             <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
-               DEMO ACCESS:<br/>
-               <span className="text-slate-600">admin / admin</span> • <span className="text-slate-600">editor / editor</span>
-             </p>
-          </div>
         </div>
 
         <div className="mt-8 text-center">
           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.4em]">
-            Institutional Record Prototype &copy; 2024
+            Institutional Control Center &copy; 2024
           </p>
         </div>
       </div>
