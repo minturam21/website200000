@@ -32,3 +32,4 @@ if ($action === 'enquiry') {
 }
 
 echo json_encode(["error" => "Unknown action"]);  
+ 
